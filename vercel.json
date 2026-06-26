@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/login",
+      "destination": "https://clients.rentup.co",
+      "permanent": false
+    }
+  ]
+}
