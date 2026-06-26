@@ -329,12 +329,15 @@
       <h2>We'd love to discuss partnering together.</h2>
     </div>
     <form id="contactForm" class="reveal">
-      <!-- To make this live: replace the access key below with your free key from web3forms.com -->
-      <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY">
-      <input type="hidden" name="subject" value="New RentUp inquiry from the website">
-      <div class="field">
-        <label for="name">Name*</label>
-        <input id="name" name="name" type="text" placeholder="Jane Smith" required>
+      <div class="row2">
+        <div class="field">
+          <label for="firstName">First Name*</label>
+          <input id="firstName" name="firstName" type="text" placeholder="Jane" required>
+        </div>
+        <div class="field">
+          <label for="lastName">Last Name*</label>
+          <input id="lastName" name="lastName" type="text" placeholder="Smith" required>
+        </div>
       </div>
       <div class="row2">
         <div class="field">
@@ -342,20 +345,20 @@
           <input id="email" name="email" type="email" placeholder="jane@property.com" required>
         </div>
         <div class="field">
-          <label for="phone">Phone</label>
-          <input id="phone" name="phone" type="tel" placeholder="(123) 456-7890">
+          <label for="phone">Phone*</label>
+          <input id="phone" name="phone" type="tel" placeholder="(123) 456-7890" required>
         </div>
       </div>
       <div class="field">
-        <label for="message">Message</label>
-        <textarea id="message" name="message" placeholder="Your message…"></textarea>
+        <label for="buildings">Which buildings are you interested in getting leads for?*</label>
+        <textarea id="buildings" name="buildings" placeholder="Property name + city (list as many as you like)" required></textarea>
       </div>
       <div class="consent">
-        <input id="c1" type="checkbox" name="sms_marketing_consent">
+        <input id="c1" type="checkbox" name="sms_marketing_consent" required>
         <label for="c1">I consent to receive marketing messages from RentUp LLC at the phone number provided. Frequency may vary. Message and data rates may apply. Text HELP for assistance, reply STOP to opt out.</label>
       </div>
       <div class="consent">
-        <input id="c2" type="checkbox" name="sms_transactional_consent">
+        <input id="c2" type="checkbox" name="sms_transactional_consent" required>
         <label for="c2">I consent to receive non-marketing messages from RentUp about my order updates, appointment reminders etc. Message and data rates may apply.</label>
       </div>
       <button type="submit" class="btn btn-primary">Send message</button>
@@ -398,21 +401,27 @@
 
   const form = document.getElementById('contactForm');
   const status = document.getElementById('formStatus');
+  const GFORM = 'https://docs.google.com/forms/d/e/1FAIpQLSdItaBcXoOhq5VVj4-VNcHJwA1hril6okQuOwiYE3SvO_Ytaw/formResponse';
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const key = form.querySelector('[name="access_key"]').value;
-    if (key === 'YOUR_WEB3FORMS_ACCESS_KEY') {
-      status.className = 'form-status err';
-      status.textContent = 'Form not connected yet — add your Web3Forms access key to go live.';
-      return;
-    }
     status.className = 'form-status'; status.style.display = 'block'; status.textContent = 'Sending…';
+    const data = new FormData();
+    data.append('entry.2137457003', document.getElementById('firstName').value);
+    data.append('entry.70723140',  document.getElementById('lastName').value);
+    data.append('entry.634880952', document.getElementById('email').value);
+    data.append('entry.1884008575', document.getElementById('phone').value);
+    data.append('entry.821303597', document.getElementById('buildings').value);
+    if (document.getElementById('c1').checked) data.append('entry.2002287521', 'Yes, I Consent');
+    if (document.getElementById('c2').checked) data.append('entry.1798912981', 'Yes, I Consent');
     try {
-      const res = await fetch('https://api.web3forms.com/submit', { method:'POST', headers:{'Accept':'application/json'}, body:new FormData(form) });
-      const data = await res.json();
-      if (data.success) { form.reset(); status.className='form-status ok'; status.textContent='Thanks! We received your message and will be in touch shortly.'; }
-      else { status.className='form-status err'; status.textContent='Something went wrong. Please email seena@rentupusa.com.'; }
-    } catch { status.className='form-status err'; status.textContent='Something went wrong. Please email seena@rentupusa.com.'; }
+      await fetch(GFORM, { method:'POST', mode:'no-cors', body:data });
+      form.reset();
+      status.className='form-status ok';
+      status.textContent='Thanks! We received your message and will be in touch shortly.';
+    } catch {
+      status.className='form-status err';
+      status.textContent='Something went wrong — please try again in a moment.';
+    }
   });
 </script>
 </body>
